@@ -1,5 +1,6 @@
 import { Router } from "express"
-import { limiter } from "../middleware/requestLimiter"
+import { limiter } from "../middleware/requestLimiter.js"
+import { register, login } from "../controllers/authControllers.js"
 
 const AuthRouter = Router()
 
