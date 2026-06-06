@@ -122,7 +122,7 @@ const deleteArticle = async (req, res) => {
         const publicData = { ...deletedArticle }
         res.status(200).json({
             success: true,
-            data: publicData,
+            data: deletedArticleData,
             message: 'Article deleted successfully'
         })
 

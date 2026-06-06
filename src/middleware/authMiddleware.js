@@ -3,7 +3,7 @@ import { config } from 'dotenv'
 
 config()
 
-const authMiddleware = (res, req, next) => {
+const authMiddleware = (req, res, next) => {
     const header = req.headers.authorization
 
     if (!header || !header.startsWith('Bearer ')) {

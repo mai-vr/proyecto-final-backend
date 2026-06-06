@@ -1,10 +1,10 @@
 import express from 'express'
 import { config } from 'dotenv'
 import cors from 'cors'
-import { authMiddleware } from './middleware/authMiddleware'
-import { AuthRouter } from './routes/authRouter'
-import { ArticleRouter } from './routes/articleRouter'
-import { connectDB } from './config/mongoDBConnection'
+import { authMiddleware } from './middleware/authMiddleware.js'
+import { AuthRouter } from './routes/authRouter.js'
+import { ArticleRouter } from './routes/articleRouter.js'
+import { connectDB } from './config/mongoDBConnection.js'
 
 config()
 process.loadEnvFile() // Reads the env variables on .env file.

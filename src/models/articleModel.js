@@ -12,6 +12,6 @@ const articleSchema = new Schema({
     timestamps: true
 })
 
-const Article = new Model('article', articleSchema)
+const Article = model('article', articleSchema)
 
 export { Article }
