@@ -1,10 +1,9 @@
 import { Schema, model } from "mongoose"
 
 const articleSchema = new Schema({
-    title: { type: String, required: true, minlength: 5 },
-    subtitle: { type: String, minlength: 5 },
+    title: { type: String, required: true },
+    subtitle: { type: String, required: true },
     text: { type: String, required: true, minlength: 3 },
-    uploadDate: { type: Date, default: Date.now() },
     like: { type: Boolean, default: false },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 }, {

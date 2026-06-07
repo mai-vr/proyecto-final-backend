@@ -1,4 +1,5 @@
 import { Article } from '../models/articleModel.js'
+import { existingArticleFields, verifyDataLength } from '../services/helpers.js'
 
 const getArticles = async (req, res) => {
     try {
@@ -51,11 +52,26 @@ const createArticle = async (req, res) => {
     try {
         const { body } = req
         const userLogged = req.userLogged
+        const { title, subtitle, text } = body
+
+        if (!existingArticleFields({ title, subtitle, text })) {
+            res.status(400).json({
+                success: false,
+                error: 'Title, subtitle and text are required'
+            })
+        }
+
+        if (!verifyDataLength(body.subtitle) || !verifyDataLength(body.text)) {
+            res.status(400).json({
+                success: false,
+                error: 'Subtitle and text must includes at least 3 words'
+            })
+        }
 
         const newArticle = await Article.create({
-            title: body.title,
-            subtitle: body.subtitle,
-            text: body.text,
+            title,
+            subtitle,
+            text,
             userId: userLogged.id
         })
         newArticle.save()
@@ -71,7 +87,7 @@ const createArticle = async (req, res) => {
         console.log(error)
         res.status(500).json({
             success: false,
-            error: 'Could not create the product'
+            error: 'Could not create the article'
         })
     }
 }
