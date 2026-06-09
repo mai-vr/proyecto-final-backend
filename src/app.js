@@ -15,6 +15,7 @@ try {
 const server = express()
 server.use(express.json()) // Post request can be read in json.
 server.use(cors())
+server.use(express.static('public'))
 
 const environment = 'dev'
 let port
