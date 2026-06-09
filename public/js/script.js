@@ -14,21 +14,24 @@ registerForm.addEventListener('submit', async (event) => {
         const response = await fetch('/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username, email, password, degree, biography
-            })
+            body: JSON.stringify({ username, email, password, degree, biography })
         })
 
         const data = await response.json()
-        if (data.username) {
-            appContent.innerHTML = `
-                <h1>Hola ${data.username}</h1>   
-            `
+
+        if (!response.ok) {
+            appContent.innerHTML = `<p style="color: red;">Error: ${data.error || 'No se pudo registrar'}</p>`
+            return
         }
 
-    } catch (error) {
         appContent.innerHTML = `
-            Error: ${error.message}
+            <h1>Registro exitoso</h1>
+            <p>Bienvenido, <strong>${data.user.username}</strong></p>
+            <p>Correo: ${data.user.email}</p>
+            ${data.user.degree ? `<p>Grado: ${data.user.degree}</p>` : ''}
         `
+
+    } catch (error) {
+        appContent.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`
     }
 })

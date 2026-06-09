@@ -9,32 +9,32 @@ config()
 const register = async (req, res) => {
     try {
         const { body } = req
-        const { username, email, password, degree } = body
+        const { username, email, password, degree, biography } = body
         const hashPassword = await bcrypt.hash(password, 10)
 
         if (!existingFields({ username, email, password })) { //A function defined on 'helpers.js' that verify if the user wrote all of the required fields.
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 error: 'Username, email and password are required'
             })
         }
 
         if (!emailValidator(email)) { // Validates if the email ends with '@gmail.com'.
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 error: 'Email must includes @gmail.com'
             })
         }
 
         if (!verifyDataLength(username)) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 error: 'Username must includes at least 3 words'
             })
         }
 
         if (!passwordValidator(password)) { // Verify if the password includes the characters required.
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 error: 'Password must includes at least 3 words, a number, an uppercaso and a lowercase'
             })
@@ -43,25 +43,30 @@ const register = async (req, res) => {
         // Analyze if the user had already been registered.
         const registeredUser = await User.findOne({ email })
         if (registeredUser) {
-            res.status(409).json({
+            return res.status(409).json({
                 success: false,
                 error: 'User already exists'
             })
         }
 
-        const newUser = await User.create({
+        const newUserData = {
             username,
             email,
             password: hashPassword,
             degree
-        })
+        }
 
-        newUser.save()
+        if (biography) {
+            newUserData.biography = biography
+        }
+
+        const newUser = await User.create(newUserData)
 
         const publicData = {
             username: newUser.username,
             email: newUser.email,
-            degree: newUser.degree
+            degree: newUser.degree,
+            biography: newUser.biography
         }
 
         // Token generation.
@@ -73,21 +78,13 @@ const register = async (req, res) => {
         const secretKey = process.env.JWT_SECRET
         const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
 
-        res.status(201).json({ token })
+        res.status(201).json({ success: true, user: publicData, token })
 
     } catch (error) {
         console.log(error)
-
-        // if (error.errors.username.kind === 'minlength') {
-        //     res.status(409).json({
-        //         success: false,
-        //         error: 'Username must includes at least 3 words'
-        //     })
-        // }
-
         res.status(409).json({
             success: false,
-            error: `Error - ${error._message}`
+            error: `Error - ${error._message || error.message}`
         })
     }
 }
