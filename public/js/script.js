@@ -11,7 +11,7 @@ registerForm.addEventListener('submit', async (event) => {
     const biography = document.getElementById('biography').value
 
     try {
-        const response = await fetch('https://backend-express-mongodb-f6yh.onrender.com', {
+        const response = await fetch('/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
