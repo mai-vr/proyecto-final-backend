@@ -6,8 +6,11 @@ import { AuthRouter } from './routes/authRouter.js'
 import { ArticleRouter } from './routes/articleRouter.js'
 import { connectDB } from './config/mongoDBConnection.js'
 
-config()
-process.loadEnvFile() // Reads the env variables on .env file.
+try {
+    process.loadEnvFile() // Reads the env variables on .env file (used for dev).
+} catch (error) {
+    config()
+}
 
 const server = express()
 server.use(express.json()) // Post request can be read in json.
