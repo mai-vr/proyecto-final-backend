@@ -9,7 +9,7 @@ const authMiddleware = (req, res, next) => {
     if (!header || !header.startsWith('Bearer ')) {
         return res.status(401).json({
             success: false,
-            error: 'Unauthorized'
+            error: 'Unauthorized - Must include a header that starts with: Bearer'
         })
     }
 
@@ -25,7 +25,7 @@ const authMiddleware = (req, res, next) => {
         console.log(error)
         res.status(401).json({
             success: false,
-            error: 'Unauthorized'
+            error: `Unauthorized - ${error.message ? error.message : 'The header or token is wrong'}`
         })
     }
 }

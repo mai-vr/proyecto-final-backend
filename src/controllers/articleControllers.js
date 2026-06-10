@@ -55,14 +55,14 @@ const createArticle = async (req, res) => {
         const { title, subtitle, text } = body
 
         if (!existingArticleFields({ title, subtitle, text })) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 error: 'Title, subtitle and text are required'
             })
         }
 
-        if (!verifyDataLength(body.subtitle) || !verifyDataLength(body.text)) {
-            res.status(400).json({
+        if (!verifyDataLength(subtitle) || !verifyDataLength(text)) {
+            return res.status(400).json({
                 success: false,
                 error: 'Subtitle and text must includes at least 3 words'
             })
@@ -96,13 +96,28 @@ const updateArticle = async (req, res) => {
     try {
         const { body } = req
         const id = req.params.id
+        const { title, subtitle, text } = body
+
+        if (id.toString().length !== 24) {
+            return res.status(400).json({
+                success: false,
+                error: 'Id is wrong'
+            })
+        }
 
         const updatedArticle = await Article.findByIdAndUpdate(id, { ...body }, { new: true, projection: { userId: 0 } })
 
         if (!updatedArticle) {
-            res.status(404).json({
+            return res.status(404).json({
                 success: false,
                 error: 'Could not find the article to update'
+            })
+        }
+
+        if (!verifyDataLength(subtitle) || !verifyDataLength(text)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Subtitle and text must includes at least 3 words'
             })
         }
 

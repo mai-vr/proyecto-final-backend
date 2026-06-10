@@ -62,7 +62,7 @@ const register = async (req, res) => {
 
         const newUser = await User.create(newUserData)
 
-        const publicData = {
+        let publicData = {
             username: newUser.username,
             email: newUser.email,
             degree: newUser.degree,
@@ -77,8 +77,9 @@ const register = async (req, res) => {
 
         const secretKey = process.env.JWT_SECRET
         const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
+        publicData = { ...publicData, token }
 
-        res.status(201).json({ success: true, user: publicData, token })
+        res.status(201).json({ success: true, data: publicData, message: 'User created succesfully' })
 
     } catch (error) {
         console.log(error)
@@ -97,7 +98,7 @@ const login = async (req, res) => {
         if (!email || !password) {
             res.status(409).json({
                 sucess: false,
-                error: 'Unauthorized'
+                error: 'Unauthorized - Email and password are required'
             })
         }
 
@@ -105,7 +106,7 @@ const login = async (req, res) => {
         if (!loggedUser) {
             res.status(409).json({
                 sucess: false,
-                error: 'Unauthorized'
+                error: 'Unauthorized - The user does not exist or the email is wrong'
             })
         }
 
@@ -113,11 +114,11 @@ const login = async (req, res) => {
         if (!isValid) {
             res.status(409).json({
                 sucess: false,
-                error: 'Unauthorized'
+                error: 'Unauthorized - The password is wrong'
             })
         }
 
-        const publicData = {
+        let publicData = {
             email: loggedUser.email
         }
 
@@ -128,11 +129,11 @@ const login = async (req, res) => {
 
         const secretKey = process.env.JWT_SECRET
         const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
+        publicData = { ...publicData, token }
 
         res.status(201).json({
             success: true,
             data: publicData,
-            token,
             message: 'User logged succesfully'
         })
 
