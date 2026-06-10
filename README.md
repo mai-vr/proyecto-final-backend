@@ -1,7 +1,6 @@
 # Gestión de articulos.
 
 API rest desarrollada con node.js y express.js para autenticar usuarios y manejar el CRUD de ensayos.
----
 
 ## Sobre el proyecto.
 Esta API incluye registro del usuario e inicio de sesión con un token generado utilizando JWT que maneja el tiempo de sesión del usuario dentro de la aplicación. Asimismo, la contraseña ingresada es hasheada con bcrypt.
