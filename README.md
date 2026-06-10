@@ -23,13 +23,13 @@ Luego, levantar el proyecto con el comando:
 npm run dev
 ```
 
-Se puede seleccionar un cliente API como 'Bruno' y correr la url que se desee probar de las declaradas en el archivo 'routes' del proyecto.
+Se puede seleccionar un cliente API como 'Bruno' y correr la url que se desee probar de las declaradas en el archivo 'routes' del proyecto.  
 Rutas para registrarse o iniciar sesión:
-> /api/auth/login
-> /api/auth/register
+`/api/auth/login`  
+`/api/auth/register`  
 Rutas para acceder a los artículos una vez se inició sesión:
->/api/articles
->/api/articles/:id
+`/api/articles`  
+`/api/articles/:id`  
 
 ---
 ## Ejemplos de request.
