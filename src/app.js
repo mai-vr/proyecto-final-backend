@@ -19,8 +19,8 @@ if (environment === 'dev') {
     port = process.env.PORT
 }
 
-server.use('/auth', AuthRouter)
-server.use('/articles', authMiddleware, ArticleRouter)
+server.use('/api/auth', AuthRouter)
+server.use('/api/articles', authMiddleware, ArticleRouter)
 
 server.listen(port, () => {
     connectDB()
