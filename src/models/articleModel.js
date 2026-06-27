@@ -5,6 +5,7 @@ const articleSchema = new Schema({
     subtitle: { type: String, required: true },
     text: { type: String, required: true, minlength: 3 },
     like: { type: Boolean, default: false },
+    category: { type: String, minlength: 3 },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 }, {
     versionKey: false,

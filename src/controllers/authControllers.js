@@ -9,7 +9,7 @@ config()
 const register = async (req, res) => {
     try {
         const { body } = req
-        const { username, email, password, degree, biography } = body
+        const { username, email, password, degree, biography, role } = body
         const hashPassword = await bcrypt.hash(password, 10)
 
         if (!existingFields({ username, email, password })) { //A function defined on 'helpers.js' that verify if the user wrote all of the required fields.
@@ -53,7 +53,8 @@ const register = async (req, res) => {
             username,
             email,
             password: hashPassword,
-            degree
+            degree,
+            role
         }
 
         if (biography) {
@@ -72,7 +73,8 @@ const register = async (req, res) => {
         // Token generation.
         const payload = {
             ...publicData,
-            id: newUser._id
+            id: newUser._id,
+            role
         }
 
         const secretKey = process.env.JWT_SECRET
@@ -124,12 +126,15 @@ const login = async (req, res) => {
 
         const payload = {
             ...publicData,
-            id: loggedUser._id
+            id: loggedUser._id,
+            role: loggedUser.role
         }
 
         const secretKey = process.env.JWT_SECRET
         const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
         publicData = { ...publicData, token }
+
+        console.log(loggedUser.role)
 
         res.status(201).json({
             success: true,
