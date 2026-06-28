@@ -2,8 +2,7 @@ import { User } from "../models/userModel.js"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { config } from "dotenv"
-import { emailValidator, existingFields, passwordValidator, verifyDataLength } from "../services/helpers.js"
-import { loginSchema, registerSchema } from "../services/validations.js"
+import { loginSchema, registerSchema } from "../services/userValidations.js"
 
 config()
 

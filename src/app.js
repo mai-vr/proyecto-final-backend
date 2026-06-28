@@ -8,7 +8,6 @@ import { connectDB } from './config/mongoDBConnection.js'
 import { routeErrorHandler } from './middleware/routeErrorHandler.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { verifyRole } from './middleware/verifyRole.js'
-// import { AdminRouter } from './routes/adminRouter.js'
 
 config()
 process.loadEnvFile() // Reads the env variables on .env file (used for dev).

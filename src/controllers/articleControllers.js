@@ -1,4 +1,5 @@
 import { Article } from '../models/articleModel.js'
+import { articleSchema } from '../services/articleValidations.js'
 import { existingArticleFields, verifyDataLength } from '../services/helpers.js'
 
 const getArticles = async (req, res) => {
@@ -69,31 +70,28 @@ const createArticle = async (req, res) => {
     try {
         const { body } = req
         const userLogged = req.userLogged
-        const { title, subtitle, text } = body
+        const { title, subtitle, text, category } = body
 
-        if (!existingArticleFields({ title, subtitle, text })) {
-            return res.status(400).json({
-                success: false,
-                error: 'Title, subtitle and text are required'
-            })
-        }
-
-        if (!verifyDataLength(subtitle) || !verifyDataLength(text)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Subtitle and text must includes at least 3 words'
-            })
-        }
-
-        const newArticle = await Article.create({
+        const newArticle = {
             title,
             subtitle,
             text,
+            category,
             userId: userLogged.id
-        })
-        newArticle.save()
+        }
 
-        const { userId, ...publicData } = newArticle.toObject()
+        const validateArticle = articleSchema.safeParse(newArticle)
+        if (!validateArticle.success) {
+            return res.status(409).json({
+                success: false,
+                error: 'Some fields are incorrect'
+            })
+        }
+
+        const saveArticle = await Article.create(newArticle)
+        saveArticle.save()
+
+        const { userId, ...publicData } = saveArticle.toObject()
         res.status(201).json({
             success: true,
             data: publicData,
@@ -122,6 +120,14 @@ const updateArticle = async (req, res) => {
             })
         }
 
+        const validateUpdateData = articleSchema.partial().safeParse(body) // .partial() means that the user can update one or all the fields from the article.
+        if (!validateUpdateData.success) {
+            return res.status(400).json({
+                success: false,
+                error: 'New data is not valid'
+            })
+        }
+
         const updatedArticle = await Article.findByIdAndUpdate(id, { ...body }, { new: true, projection: { userId: 0 } })
 
         if (!updatedArticle) {
@@ -131,14 +137,14 @@ const updateArticle = async (req, res) => {
             })
         }
 
-        if (subtitle || text) {
-            if (!verifyDataLength(subtitle) || !verifyDataLength(text)) {
-                return res.status(400).json({
-                    success: false,
-                    error: 'Subtitle and text must includes at least 3 words'
-                })
-            }
-        }
+        // if (subtitle || text) {
+        //     if (!verifyDataLength(subtitle) || !verifyDataLength(text)) {
+        //         return res.status(400).json({
+        //             success: false,
+        //             error: 'Subtitle and text must includes at least 3 words'
+        //         })
+        //     }
+        // }
 
         res.status(200).json({
             success: true,
