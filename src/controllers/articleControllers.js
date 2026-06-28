@@ -1,6 +1,5 @@
 import { Article } from '../models/articleModel.js'
 import { articleSchema } from '../services/articleValidations.js'
-import { existingArticleFields, verifyDataLength } from '../services/helpers.js'
 
 const getArticles = async (req, res) => {
     try {
@@ -128,7 +127,7 @@ const updateArticle = async (req, res) => {
             })
         }
 
-        const updatedArticle = await Article.findByIdAndUpdate(id, { ...body }, { new: true, projection: { userId: 0 } })
+        const updatedArticle = await Article.findOneAndUpdate({ _id: id, userId: req.userLogged.id }, { ...body }, { new: true, projection: { userId: 0 } })
 
         if (!updatedArticle) {
             return res.status(404).json({
@@ -136,15 +135,6 @@ const updateArticle = async (req, res) => {
                 error: 'Could not find the article to update'
             })
         }
-
-        // if (subtitle || text) {
-        //     if (!verifyDataLength(subtitle) || !verifyDataLength(text)) {
-        //         return res.status(400).json({
-        //             success: false,
-        //             error: 'Subtitle and text must includes at least 3 words'
-        //         })
-        //     }
-        // }
 
         res.status(200).json({
             success: true,
