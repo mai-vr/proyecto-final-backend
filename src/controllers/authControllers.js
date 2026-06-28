@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { config } from "dotenv"
 import { emailValidator, existingFields, passwordValidator, verifyDataLength } from "../services/helpers.js"
+import { loginSchema, registerSchema } from "../services/validations.js"
 
 config()
 
@@ -12,31 +13,11 @@ const register = async (req, res) => {
         const { username, email, password, degree, biography } = body
         const hashPassword = await bcrypt.hash(password, 10)
 
-        if (!existingFields({ username, email, password })) { //A function defined on 'helpers.js' that verify if the user wrote all of the required fields.
+        const validatedData = registerSchema.safeParse(body)
+        if (!validatedData.success) {
             return res.status(400).json({
                 success: false,
-                error: 'Username, email and password are required'
-            })
-        }
-
-        if (!emailValidator(email)) { // Validates if the email ends with '@gmail.com'.
-            return res.status(400).json({
-                success: false,
-                error: 'Email must includes @gmail.com'
-            })
-        }
-
-        if (!verifyDataLength(username)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Username must includes at least 3 words'
-            })
-        }
-
-        if (!passwordValidator(password)) { // Verify if the password includes the characters required.
-            return res.status(400).json({
-                success: false,
-                error: 'Password must includes at least 3 words, a number, an uppercaso and a lowercase'
+                error: 'Some fields are incorrect'
             })
         }
 
@@ -73,14 +54,14 @@ const register = async (req, res) => {
         const payload = {
             ...publicData,
             id: newUser._id,
-            role
+            role: 'user'
         }
 
         const secretKey = process.env.JWT_SECRET
         const token = jwt.sign(payload, secretKey, { expiresIn: '1h' })
         publicData = { ...publicData, token }
 
-        res.status(201).json({ success: true, data: publicData, message: 'User created succesfully' })
+        return res.status(201).json({ success: true, data: publicData, message: 'User created succesfully' })
 
     } catch (error) {
         console.log(error)
@@ -97,15 +78,23 @@ const login = async (req, res) => {
         const { email, password } = body
 
         if (!email || !password) {
-            res.status(409).json({
+            return res.status(409).json({
                 sucess: false,
                 error: 'Unauthorized - Email and password are required'
             })
         }
 
+        const validatedLogIn = loginSchema.safeParse(body)
+        if (!validatedLogIn) {
+            return res.status(400).json({
+                success: false,
+                error: 'Some fields are incorrect'
+            })
+        }
+
         const loggedUser = await User.findOne({ email })
         if (!loggedUser) {
-            res.status(409).json({
+            return res.status(409).json({
                 sucess: false,
                 error: 'Unauthorized - The user does not exist or the email is wrong'
             })
@@ -113,7 +102,7 @@ const login = async (req, res) => {
 
         const isValid = await bcrypt.compare(password, loggedUser.password)
         if (!isValid) {
-            res.status(409).json({
+            return res.status(409).json({
                 sucess: false,
                 error: 'Unauthorized - The password is wrong'
             })
@@ -135,7 +124,7 @@ const login = async (req, res) => {
 
         console.log(loggedUser.role)
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             data: publicData,
             message: 'User logged succesfully'
