@@ -4,11 +4,28 @@ import { existingArticleFields, verifyDataLength } from '../services/helpers.js'
 const getArticles = async (req, res) => {
     try {
         const userLogged = req.userLogged // 'userLogged' is a req property made on the middleware. It contains the data from the user.
+        const limit = Number(req.query.limit) || 1 // By default the limit is 10 elements.
+        const page = Number(req.query.page) || 1
+        const { category, userId, sort, order } = req.query // Filters
+        const skip = (page - 1) * limit
+        const filter = {}
 
-        const filteredArticles = await Article.find({ userId: userLogged.id }, { userId: 0 }) // Mongo projection, we don´t have to show the id of the user.
+        if (category) filter.category = category.toLowerCase()
+        if (userLogged.role !== 'admin') {
+            filter.userId = userLogged.id
+        } else if (userId) {
+            filter.userId = userId
+        }
+        let orderMongo = 1
+        if (order) {
+            orderMongo = order === 'asc' ? -1 : 1
+        }
+
+        const articles = await Article.find(filter).skip(skip).limit(limit).sort({ [sort]: orderMongo })
+
         res.status(200).json({
             success: true,
-            data: filteredArticles,
+            data: articles,
             message: 'Articles gotten successfully'
         })
 
@@ -96,7 +113,7 @@ const updateArticle = async (req, res) => {
     try {
         const { body } = req
         const id = req.params.id
-        const { title, subtitle, text } = body
+        const { title, subtitle, text, category } = body
 
         if (id.toString().length !== 24) {
             return res.status(400).json({
@@ -114,11 +131,13 @@ const updateArticle = async (req, res) => {
             })
         }
 
-        if (!verifyDataLength(subtitle) || !verifyDataLength(text)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Subtitle and text must includes at least 3 words'
-            })
+        if (subtitle || text) {
+            if (!verifyDataLength(subtitle) || !verifyDataLength(text)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Subtitle and text must includes at least 3 words'
+                })
+            }
         }
 
         res.status(200).json({
@@ -138,13 +157,19 @@ const updateArticle = async (req, res) => {
 const deleteArticle = async (req, res) => {
     try {
         const id = req.params.id
+        const userData = req.userLogged
 
-        const deletedArticle = await Article.findByIdAndDelete(id)
-        if (!deletedArticle) {
-            res.status(404).json({
-                success: false,
-                error: 'Could not find the article to delete'
-            })
+        let deletedArticle
+        if (userData.role === 'admin') {
+            deletedArticle = await Article.findByIdAndDelete(id)
+        } else { // If the user is not admin the article must be written by them to delete it.
+            deletedArticle = await Article.findOneAndDelete({ _id: id, userId: userData.id })
+            if (!deletedArticle) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Could not find the article to delete'
+                })
+            }
         }
 
         const deletedArticleData = deletedArticle.toObject()

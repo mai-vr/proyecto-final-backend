@@ -11,7 +11,7 @@ const getAllArticles = async (req, res) => {
     const ALLOWED_ORDERS = ['asc', 'desc']
     const ALLOWED_ORDERBY = ['title', 'subtitle', 'createdAt', 'updatedAt']
 
-    let filteredArticles
+    let filteredArticles = await Article.find()
     // Filter by conditions.
     if (category || userId) {
         if (category) {
@@ -56,18 +56,10 @@ const getAllArticles = async (req, res) => {
 
     return res.status(200).json({
         success: true,
-        data: articles,
+        data: filteredArticles,
         message: 'All articles'
     })
 
 }
 
-const deleteArticles = async (req, res) => {
-    return res.status(200).json({
-        success: true,
-        data: articles,
-        message: 'All articles'
-    })
-}
-
-export { getAllArticles, deleteArticles }
+export { getAllArticles }

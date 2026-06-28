@@ -9,7 +9,7 @@ config()
 const register = async (req, res) => {
     try {
         const { body } = req
-        const { username, email, password, degree, biography, role } = body
+        const { username, email, password, degree, biography } = body
         const hashPassword = await bcrypt.hash(password, 10)
 
         if (!existingFields({ username, email, password })) { //A function defined on 'helpers.js' that verify if the user wrote all of the required fields.
@@ -53,8 +53,7 @@ const register = async (req, res) => {
             username,
             email,
             password: hashPassword,
-            degree,
-            role
+            degree
         }
 
         if (biography) {
