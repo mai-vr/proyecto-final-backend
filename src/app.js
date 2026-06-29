@@ -10,7 +10,6 @@ import { errorHandler } from './middleware/errorHandler.js'
 import { verifyRole } from './middleware/verifyRole.js'
 
 config()
-process.loadEnvFile() // Reads the env variables on .env file (used for dev).
 
 const server = express()
 server.use(express.json()) // Post request can be read in json.
