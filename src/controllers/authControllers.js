@@ -91,7 +91,7 @@ const login = async (req, res) => {
             })
         }
 
-        const loggedUser = await User.findOne({ email })
+        const loggedUser = await User.findOne({ email }) // If the user is already log, it returns an error.
         if (!loggedUser) {
             return res.status(409).json({
                 sucess: false,
@@ -99,7 +99,7 @@ const login = async (req, res) => {
             })
         }
 
-        const isValid = await bcrypt.compare(password, loggedUser.password)
+        const isValid = await bcrypt.compare(password, loggedUser.password) // Compares the new password and the one stored in the data base.
         if (!isValid) {
             return res.status(409).json({
                 sucess: false,
@@ -107,14 +107,14 @@ const login = async (req, res) => {
             })
         }
 
-        let publicData = {
+        let publicData = { // The data that will be shown to the user.
             email: loggedUser.email
         }
 
         const payload = {
             ...publicData,
             id: loggedUser._id,
-            role: loggedUser.role
+            role: loggedUser.role // By default is 'user'.
         }
 
         const secretKey = process.env.JWT_SECRET

@@ -4,7 +4,7 @@ import { articleSchema } from '../services/articleValidations.js'
 const getArticles = async (req, res) => {
     try {
         const userLogged = req.userLogged // 'userLogged' is a req property made on the middleware. It contains the data from the user.
-        const limit = Number(req.query.limit) || 4 // By default the limit is 10 elements.
+        const limit = Number(req.query.limit) || 4 // By default the limit is 4 elements.
         const page = Number(req.query.page) || 1
         const { category, userId, sort, order } = req.query // Filters
         const skip = (page - 1) * limit
@@ -12,9 +12,9 @@ const getArticles = async (req, res) => {
 
         if (category) filter.category = category.toLowerCase()
         if (userLogged.role !== 'admin') {
-            filter.userId = userLogged.id
+            filter.userId = userLogged.id // If the user is not the admin, they can only acces to their articles.
         } else if (userId) {
-            filter.userId = userId
+            filter.userId = userId // If the user is the admin, the admin can filter by the author of the article.
         }
         let orderMongo = 1
         if (order) {
@@ -22,6 +22,7 @@ const getArticles = async (req, res) => {
         }
 
         const articles = await Article.find(filter).skip(skip).limit(limit).sort({ [sort]: orderMongo })
+        // Gets the articles that match the filter.
 
         res.status(200).json({
             success: true,
@@ -40,7 +41,7 @@ const getArticles = async (req, res) => {
 
 const getOneArticle = async (req, res) => {
     try {
-        const id = req.params.id
+        const id = req.params.id // Gets the id written in the url.
         const foundArticle = await Article.findById(id, { userId: 0 })
 
         if (!foundArticle) {
@@ -80,6 +81,7 @@ const createArticle = async (req, res) => {
         }
 
         const validateArticle = articleSchema.safeParse(newArticle)
+        // safeParse is a method to get back a plain result object containing either the successfully parsed data or a ZodError.
         if (!validateArticle.success) {
             return res.status(409).json({
                 success: false,
@@ -87,7 +89,7 @@ const createArticle = async (req, res) => {
             })
         }
 
-        const saveArticle = await Article.create(newArticle)
+        const saveArticle = await Article.create(newArticle) // If the new article is valid, it´s saved in the data base.
         saveArticle.save()
 
         const { userId, ...publicData } = saveArticle.toObject()
@@ -128,6 +130,7 @@ const updateArticle = async (req, res) => {
         }
 
         const updatedArticle = await Article.findOneAndUpdate({ _id: id, userId: req.userLogged.id }, { ...body }, { new: true, projection: { userId: 0 } })
+        // To be allowed to update the article, the user must be the owner of that article.
 
         if (!updatedArticle) {
             return res.status(404).json({
@@ -169,7 +172,7 @@ const deleteArticle = async (req, res) => {
         }
 
         const deletedArticleData = deletedArticle.toObject()
-        delete deletedArticleData.userId
+        delete deletedArticleData.userId // The data that will be shown to the user won´t includes their id.
 
         const publicData = { ...deletedArticle }
         res.status(200).json({

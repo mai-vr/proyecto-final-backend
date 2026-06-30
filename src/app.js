@@ -26,7 +26,6 @@ const ALLOWED_ROLES = ['user', 'admin']
 
 server.use('/api/auth', AuthRouter)
 server.use('/api/articles', authMiddleware, verifyRole(ALLOWED_ROLES), ArticleRouter)
-// server.use('/api/articles', authMiddleware, verifyRole(ADMIN_ROLE), AdminRouter)
 server.use(routeErrorHandler) // If the route doesn´t exist it shows a message in JSON.
 server.use(errorHandler) // Every error will be shown as JSON in a specific format.
 
