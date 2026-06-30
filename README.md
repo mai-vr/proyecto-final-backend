@@ -108,3 +108,6 @@ Para borrar un artículo el método será DELETE y la url:
 ```bash
 https://localhost:<puerto>/api/articles/<id-del-articulo>
 ```
+
+## Deploy
+El proyecto fue deployeado en Render, se puede acceder a través de este [link](https://proyecto-final-backend-2637.onrender.com)
